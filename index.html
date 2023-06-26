@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Search Engine</title>
+  <style>
+    /* Add your custom styles here */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: lightgreen;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    Img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+    #search-input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 300px;
+    }
+
+    #search-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4285f4;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #search-results {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+    }
+
+
+
+    .result-container {
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      max-width: 600px;
+      text-align: center;
+      margin: 0 10px;
+    }
+
+    .arrow {
+      font-size: 30px;
+      color: #4285f4;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="LOGO">
+	<img src="ZETARCH.png" alt="ZETARCH" width="600" height="200">
+</div>
+  
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Enter your search query">
+    <button id="search-button" onclick="search()">Search</button>
+  </div>
+  <div id="search-results"></div>
+
+  <script>
+    let searchResults = [];
+    let currentResultIndex = 0;
+
+    function search() {
+      const query = document.getElementById('search-input').value;
+      fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`)
+        .then(response => response.json())
+        .then(data => {
+          searchResults = data.RelatedTopics || [];
+          currentResultIndex = 0;
+          displayResult();
+        })
+        .catch(error => {
+          console.error('An error occurred:', error);
+        });
+    }
+
+    function displayResult() {
+      const resultsContainer = document.getElementById('search-results');
+      resultsContainer.innerHTML = '';
+
+      if (searchResults.length === 0) {
+        const noResultsMessage = document.createElement('div');
+        noResultsMessage.textContent = 'No results found.';
+        resultsContainer.appendChild(noResultsMessage);
+      } else {
+        const currentResult = searchResults[currentResultIndex];
+        const resultContainer = document.createElement('div');
+        resultContainer.classList.add('result-container');
+        resultContainer.textContent = currentResult.Text;
+        resultsContainer.appendChild(resultContainer);
+
+        const arrowsContainer = document.createElement('div');
+        arrowsContainer.classList.add('arrows-container');
+        resultsContainer.appendChild(arrowsContainer);
+
+        const leftArrow = document.createElement('span');
+        leftArrow.classList.add('arrow');
+        leftArrow.textContent = '<';
+        leftArrow.addEventListener('click', () => navigateResults('left'));
+        arrowsContainer.appendChild(leftArrow);
+
+        const rightArrow = document.createElement('span');
+        rightArrow.classList.add('arrow');
+        rightArrow.textContent = '>';
+        rightArrow.addEventListener('click', () => navigateResults('right'));
+        arrowsContainer.appendChild(rightArrow);
+      }
+    }
+
+    function navigateResults(direction) {
+      if (direction === 'left') {
+        if (currentResultIndex > 0) {
+          currentResultIndex--;
+        } else {
+          currentResultIndex = searchResults.length - 1;
+        }
+      } else if (direction === 'right') {
+        if (currentResultIndex < searchResults.length - 1) {
+          currentResultIndex++;
+        } else {
+          currentResultIndex = 0;
+        }
+      }
+
+      displayResult();
+    }
+  </script>
+</body>
+</html>
